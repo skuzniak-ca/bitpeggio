@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BITPEGGIO // 8-BIT + 16-BIT SYNTH</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- CRT scanline + glow overlay (purely decorative) -->
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <main class="cabinet">
+    <header class="marquee">
+      <h1>BITPEGGIO</h1>
+      <p class="subtitle" id="subtitle">8-BIT SYNTH KEYBOARD</p>
+    </header>
+
+    <!-- Era toggle -->
+    <nav class="tabs">
+      <button class="tab active" data-mode="8bit">8-BIT</button>
+      <button class="tab" data-mode="16bit">16-BIT</button>
+    </nav>
+
+    <section class="panel mode-panel" data-mode="8bit">
+      <!-- Oscilloscope -->
+      <div class="scope-wrap">
+        <canvas id="scope" width="480" height="120"></canvas>
+        <span class="scope-label">SCOPE</span>
+      </div>
+
+      <div class="controls">
+        <!-- Waveform selector -->
+        <fieldset class="control-group">
+          <legend>WAVEFORM</legend>
+          <div class="wave-buttons" id="waveButtons">
+            <button class="wave-btn active" data-wave="pulse">PULSE</button>
+            <button class="wave-btn" data-wave="triangle">TRI</button>
+            <button class="wave-btn" data-wave="sawtooth">SAW</button>
+            <button class="wave-btn" data-wave="noise">NOISE</button>
+          </div>
+        </fieldset>
+
+        <!-- Pulse width (only meaningful for pulse wave) -->
+        <fieldset class="control-group">
+          <legend>PULSE WIDTH</legend>
+          <input type="range" id="pulseWidth" min="0.05" max="0.95" step="0.01" value="0.5" />
+          <output id="pulseWidthVal">50%</output>
+        </fieldset>
+
+        <!-- Envelope -->
+        <fieldset class="control-group adsr">
+          <legend>ENVELOPE (ADSR)</legend>
+          <label>A<input type="range" id="attack" min="0" max="1" step="0.01" value="0.01" /></label>
+          <label>D<input type="range" id="decay" min="0" max="1" step="0.01" value="0.12" /></label>
+          <label>S<input type="range" id="sustain" min="0" max="1" step="0.01" value="0.6" /></label>
+          <label>R<input type="range" id="release" min="0" max="1.5" step="0.01" value="0.2" /></label>
+        </fieldset>
+
+        <!-- Master + octave -->
+        <fieldset class="control-group">
+          <legend>MASTER</legend>
+          <label>VOL<input type="range" id="volume" min="0" max="1" step="0.01" value="0.4" /></label>
+          <div class="octave">
+            <button id="octDown">&#9660;</button>
+            <span>OCT <output id="octVal">4</output></span>
+            <button id="octUp">&#9650;</button>
+          </div>
+        </fieldset>
+      </div>
+
+      <!-- Preset patches -->
+      <fieldset class="control-group presets">
+        <legend>PATCHES</legend>
+        <div id="presetButtons">
+          <button data-preset="lead">NES LEAD</button>
+          <button data-preset="bass">GB BASS</button>
+          <button data-preset="laser">LASER</button>
+          <button data-preset="coin">COIN</button>
+          <button data-preset="jump">JUMP</button>
+        </div>
+      </fieldset>
+
+      <!-- Guided song (auto-play, watch the keys light up) -->
+      <fieldset class="control-group song">
+        <legend>GUIDED SONG</legend>
+        <div class="song-row">
+          <select id="songSelect">
+            <option value="twinkle">TWINKLE TWINKLE</option>
+            <option value="ode">ODE TO JOY</option>
+            <option value="mary">MARY HAD A LITTLE LAMB</option>
+            <option value="jingle">JINGLE BELLS</option>
+          </select>
+          <button id="playSong">&#9654; PLAY</button>
+        </div>
+        <p class="song-hint">PRESS PLAY - WATCH THE KEYS LIGHT UP IN TIME. USES YOUR CURRENT WAVEFORM &amp; SOUND.</p>
+      </fieldset>
+
+      <!-- On-screen keyboard (built by JS) -->
+      <div class="keyboard" id="keyboard"></div>
+
+      <p class="hint">
+        PLAY WITH YOUR KEYBOARD: <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> &hellip; (WHITE)
+        &nbsp;/&nbsp; <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> (BLACK)
+        &nbsp;/&nbsp; <kbd>Z</kbd> <kbd>X</kbd> = OCTAVE
+      </p>
+
+      <!-- Legend: what every control does -->
+      <details class="legend">
+        <summary>&#9654; WHAT DOES IT ALL DO?</summary>
+        <dl>
+          <dt>WAVEFORM</dt>
+          <dd>The raw tone color.
+            <b>PULSE</b> = punchy square (NES lead/melody),
+            <b>TRI</b> = soft triangle (NES bass),
+            <b>SAW</b> = bright and buzzy,
+            <b>NOISE</b> = pitched static (drums/explosions).</dd>
+
+          <dt>PULSE WIDTH</dt>
+          <dd>Only affects PULSE. Sets the duty cycle - how much of each cycle is
+            "on." 50% is a full square; lower values get thin and nasal. Sweep it
+            while holding a note for that classic chiptune morph.</dd>
+
+          <dt>ENVELOPE (ADSR)</dt>
+          <dd>Shapes a note's volume over time.
+            <b>A</b>ttack = fade-in time,
+            <b>D</b>ecay = drop after the peak,
+            <b>S</b>ustain = held level while a key is down,
+            <b>R</b>elease = fade-out after you let go.</dd>
+
+          <dt>MASTER</dt>
+          <dd><b>VOL</b> = overall loudness.
+            <b>OCT</b> = which octave the keys play (lower = deeper). Change it with
+            the arrows or the <kbd>Z</kbd> / <kbd>X</kbd> keys.</dd>
+
+          <dt>PATCHES</dt>
+          <dd>One-click sounds that set the waveform + pulse width + envelope for you.
+            A fast way to hear what the controls can make.</dd>
+
+          <dt>SCOPE</dt>
+          <dd>An oscilloscope - a live picture of the sound wave you're playing.
+            Watch how each waveform and the envelope change its shape.</dd>
+        </dl>
+      </details>
+    </section>
+
+    <!-- ====================== 16-BIT (SNES) PANEL ====================== -->
+    <section class="panel mode-panel snes hidden" data-mode="16bit">
+      <!-- Oscilloscope -->
+      <div class="scope-wrap">
+        <canvas id="scope16" width="480" height="120"></canvas>
+        <span class="scope-label">SCOPE</span>
+      </div>
+
+      <div class="controls">
+        <!-- Tone / base waveform -->
+        <fieldset class="control-group">
+          <legend>TONE</legend>
+          <div class="wave-buttons" id="wave16Buttons">
+            <button class="wave-btn active" data-wave="sawtooth">SAW</button>
+            <button class="wave-btn" data-wave="triangle">TRI</button>
+            <button class="wave-btn" data-wave="square">SQR</button>
+          </div>
+        </fieldset>
+
+        <!-- Detune (chorus width) -->
+        <fieldset class="control-group">
+          <legend>DETUNE</legend>
+          <input type="range" id="detune" min="0" max="40" step="1" value="12" />
+          <output id="detuneVal">12&cent;</output>
+        </fieldset>
+
+        <!-- Low-pass warmth -->
+        <fieldset class="control-group">
+          <legend>WARMTH (LOW-PASS)</legend>
+          <input type="range" id="cutoff" min="400" max="12000" step="100" value="4500" />
+          <output id="cutoffVal">4500 HZ</output>
+        </fieldset>
+
+        <!-- Reverb -->
+        <fieldset class="control-group">
+          <legend>REVERB</legend>
+          <input type="range" id="reverb" min="0" max="1" step="0.01" value="0.35" />
+          <output id="reverbVal">35%</output>
+        </fieldset>
+
+        <!-- Vibrato -->
+        <fieldset class="control-group">
+          <legend>VIBRATO</legend>
+          <input type="range" id="vibrato" min="0" max="30" step="1" value="6" />
+          <output id="vibratoVal">6&cent;</output>
+        </fieldset>
+
+        <!-- Master + octave -->
+        <fieldset class="control-group">
+          <legend>MASTER</legend>
+          <label>VOL<input type="range" id="volume16" min="0" max="1" step="0.01" value="0.45" /></label>
+          <div class="octave">
+            <button id="octDown16">&#9660;</button>
+            <span>OCT <output id="octVal16">4</output></span>
+            <button id="octUp16">&#9650;</button>
+          </div>
+        </fieldset>
+
+        <!-- Envelope -->
+        <fieldset class="control-group adsr">
+          <legend>ENVELOPE (ADSR)</legend>
+          <label>A<input type="range" id="attack16" min="0" max="1.5" step="0.01" value="0.04" /></label>
+          <label>D<input type="range" id="decay16" min="0" max="1.5" step="0.01" value="0.2" /></label>
+          <label>S<input type="range" id="sustain16" min="0" max="1" step="0.01" value="0.75" /></label>
+          <label>R<input type="range" id="release16" min="0" max="2.5" step="0.01" value="0.5" /></label>
+        </fieldset>
+      </div>
+
+      <!-- Preset patches -->
+      <fieldset class="control-group presets">
+        <legend>PATCHES</legend>
+        <div id="preset16Buttons">
+          <button data-preset="strings">STRINGS</button>
+          <button data-preset="bell">BELL</button>
+          <button data-preset="choir">CHOIR</button>
+          <button data-preset="marimba">MARIMBA</button>
+          <button data-preset="brass">BRASS</button>
+        </div>
+      </fieldset>
+
+      <!-- Guided song -->
+      <fieldset class="control-group song">
+        <legend>GUIDED SONG</legend>
+        <div class="song-row">
+          <select id="songSelect16">
+            <option value="twinkle">TWINKLE TWINKLE</option>
+            <option value="ode">ODE TO JOY</option>
+            <option value="mary">MARY HAD A LITTLE LAMB</option>
+            <option value="jingle">JINGLE BELLS</option>
+          </select>
+          <button id="playSong16">&#9654; PLAY</button>
+        </div>
+        <p class="song-hint">PRESS PLAY - WATCH THE KEYS LIGHT UP IN TIME. USES YOUR CURRENT TONE &amp; SOUND.</p>
+      </fieldset>
+
+      <!-- On-screen keyboard (built by JS) -->
+      <div class="keyboard" id="keyboard16"></div>
+
+      <p class="hint">
+        PLAY WITH YOUR KEYBOARD: <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> <kbd>F</kbd> &hellip; (WHITE)
+        &nbsp;/&nbsp; <kbd>W</kbd> <kbd>E</kbd> <kbd>T</kbd> <kbd>Y</kbd> <kbd>U</kbd> (BLACK)
+        &nbsp;/&nbsp; <kbd>Z</kbd> <kbd>X</kbd> = OCTAVE
+      </p>
+
+      <!-- Legend -->
+      <details class="legend">
+        <summary>&#9654; WHAT DOES IT ALL DO?</summary>
+        <dl>
+          <dt>TONE</dt>
+          <dd>The base waveform each voice is built from. Two of them are layered and
+            slightly detuned for a fuller, chorus-y 16-bit body.
+            <b>SAW</b> = strings/brass, <b>TRI</b> = soft/flutey, <b>SQR</b> = reedy.</dd>
+
+          <dt>DETUNE</dt>
+          <dd>How far apart the two stacked oscillators are (in cents). More detune =
+            a wider chorus. Zero = clean and thin.</dd>
+
+          <dt>WARMTH (LOW-PASS)</dt>
+          <dd>A low-pass filter that rolls off the highs. Lower = darker and warmer,
+            closer to the SNES's muffled character; higher = brighter.</dd>
+
+          <dt>REVERB</dt>
+          <dd>Wet/dry mix of a reverb tail - the spacious "big room" sound the
+            SNES was known for. Turn it up for pads and choirs.</dd>
+
+          <dt>VIBRATO</dt>
+          <dd>A gentle pitch wobble (an LFO) added to every note for expression.</dd>
+
+          <dt>ENVELOPE (ADSR)</dt>
+          <dd>Shapes a note's volume over time: <b>A</b>ttack, <b>D</b>ecay,
+            <b>S</b>ustain level, <b>R</b>elease tail. Slow attacks make sweeping pads.</dd>
+
+          <dt>MASTER / PATCHES / SCOPE</dt>
+          <dd><b>VOL</b> and <b>OCT</b> as in 8-bit. <b>Patches</b> are one-click sounds.
+            <b>Scope</b> shows the live (post-reverb) waveform.</dd>
+        </dl>
+      </details>
+    </section>
+  </main>
+
+  <script src="songs.js"></script>
+  <script src="app.js"></script>
+  <script src="synth.js"></script>
+  <script src="synth16.js"></script>
+</body>
+</html>
