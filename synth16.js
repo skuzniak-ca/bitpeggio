@@ -1,4 +1,4 @@
-/* BITPEGGIO - 16-bit (SNES-style) engine. Warm-synth emulation of the SNES vibe:
+/* CHIPPEGGIO - 16-bit (SNES-style) engine. Warm-synth emulation of the SNES vibe:
    two detuned oscillators per voice for chorus-y body, a global low-pass filter
    for warmth, a procedurally generated reverb, stereo panning, and a vibrato
    LFO. Web Audio only, no samples, no dependencies. */
@@ -246,20 +246,20 @@
 
   // ---- Computer keyboard (only when 16-bit tab is active) ----------------
   window.addEventListener("keydown", (e) => {
-    if (e.repeat || window.BITPEGGIO.get() !== "16bit") return;
+    if (e.repeat || window.CHIPPEGGIO.get() !== "16bit") return;
     const k = e.key.toLowerCase();
     if (k === "z") return setOctave(state.octave - 1);
     if (k === "x") return setOctave(state.octave + 1);
     if (k in KEY_MAP) { e.preventDefault(); noteOn("k" + k, KEY_MAP[k]); }
   });
   window.addEventListener("keyup", (e) => {
-    if (window.BITPEGGIO.get() !== "16bit") return;
+    if (window.CHIPPEGGIO.get() !== "16bit") return;
     const k = e.key.toLowerCase();
     if (k in KEY_MAP) noteOff("k" + k);
   });
 
   // ---- Guided songs (shared data) ----------------------------------------
-  const SONGS = window.BITPEGGIO_SONGS;
+  const SONGS = window.CHIPPEGGIO_SONGS;
   const player = { timers: [], active: new Set(), playing: false };
   const playBtn = $("playSong16");
   const songSelect = $("songSelect16");
@@ -335,7 +335,7 @@
   buildKeyboard();
   setOctave(state.octave);
 
-  window.BITPEGGIO.register("16bit", {
+  window.CHIPPEGGIO.register("16bit", {
     deactivate: () => { stopSong(); if (ac) ac.suspend(); },
     activate: () => { if (ac) ac.resume(); },
   });

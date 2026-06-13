@@ -1,6 +1,6 @@
-# Bitpeggio
+# Chippeggio
 
-Bitpeggio is a locally-running chiptune synthesizer keyboard that runs in the browser. It has two modes you switch between with a tab: an 8-bit (NES) mode and a 16-bit (SNES) mode. You play it with your computer keyboard or by clicking the on-screen keys. It is built with plain HTML, CSS, and JavaScript on the Web Audio API, with no build step, no dependencies, and no network access.
+Chippeggio is a locally-running chiptune synthesizer keyboard that runs in the browser. It has two modes you switch between with a tab: an 8-bit (NES) mode and a 16-bit (SNES) mode. You play it with your computer keyboard or by clicking the on-screen keys. It is built with plain HTML, CSS, and JavaScript on the Web Audio API, with no build step, no dependencies, and no network access.
 
 ## How It Works
 
@@ -50,12 +50,12 @@ Open `index.html` in a browser.
 | `Z` / `X`                  | Octave down / up                |
 | Mouse / touch              | Click the on-screen keys        |
 
-To add your own guided song, extend the `BITPEGGIO_SONGS` table in `songs.js`; each note is `[semitoneOffset, durationInBeats]` and `-1` is a rest.
+To add your own guided song, extend the `CHIPPEGGIO_SONGS` table in `songs.js`; each note is `[semitoneOffset, durationInBeats]` and `-1` is a rest.
 
 ## Project Structure
 
 ```
-bitpeggio/
+chippeggio/
 ├── index.html      # Page shell, both mode panels, on-screen layout
 ├── style.css       # CRT / NES theme, shared by both modes
 ├── app.js          # Tab shell: owns 8-bit/16-bit state, pauses inactive engine

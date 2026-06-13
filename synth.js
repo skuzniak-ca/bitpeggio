@@ -1,4 +1,4 @@
-/* BITPEGGIO - 8-bit synth keyboard engine. Web Audio API, no dependencies. */
+/* CHIPPEGGIO - 8-bit synth keyboard engine. Web Audio API, no dependencies. */
 
 (() => {
   "use strict";
@@ -220,7 +220,7 @@
 
   // ---- Computer keyboard -------------------------------------------------
   window.addEventListener("keydown", (e) => {
-    if (e.repeat || window.BITPEGGIO.get() !== "8bit") return;
+    if (e.repeat || window.CHIPPEGGIO.get() !== "8bit") return;
     const k = e.key.toLowerCase();
     if (k === "z") return setOctave(state.octave - 1);
     if (k === "x") return setOctave(state.octave + 1);
@@ -230,14 +230,14 @@
     }
   });
   window.addEventListener("keyup", (e) => {
-    if (window.BITPEGGIO.get() !== "8bit") return;
+    if (window.CHIPPEGGIO.get() !== "8bit") return;
     const k = e.key.toLowerCase();
     if (k in KEY_MAP) noteOff("k" + k);
   });
 
   // ---- Guided songs ------------------------------------------------------
   // Shared public-domain melodies (see songs.js), used by both engines.
-  const SONGS = window.BITPEGGIO_SONGS;
+  const SONGS = window.CHIPPEGGIO_SONGS;
 
   // Auto-play scheduler. Reuses noteOn/noteOff, so each note both sounds and
   // lights its key. Visual+audio timing is driven off setTimeout - plenty
@@ -328,7 +328,7 @@
   pulseWidthVal.textContent = Math.round(state.pulseWidth * 100) + "%";
 
   // Pause this engine (stop songs + suspend audio) when its tab isn't showing.
-  window.BITPEGGIO.register("8bit", {
+  window.CHIPPEGGIO.register("8bit", {
     deactivate: () => { stopSong(); if (ac) ac.suspend(); },
     activate: () => { if (ac) ac.resume(); },
   });

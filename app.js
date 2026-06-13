@@ -1,7 +1,7 @@
-/* BITPEGGIO - app shell. Owns the 8-BIT / 16-BIT tab state and lets each engine
+/* CHIPPEGGIO - app shell. Owns the 8-BIT / 16-BIT tab state and lets each engine
    register itself so it can be paused when its tab isn't showing. */
 
-window.BITPEGGIO = (() => {
+window.CHIPPEGGIO = (() => {
   "use strict";
   const engines = {};
   let mode = "8bit";

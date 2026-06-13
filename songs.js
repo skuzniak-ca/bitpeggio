@@ -1,8 +1,8 @@
-/* BITPEGGIO - shared guided-song data, used by both the 8-bit and 16-bit engines.
+/* CHIPPEGGIO - shared guided-song data, used by both the 8-bit and 16-bit engines.
    Each note is [semitoneOffset, durationInBeats]; -1 offset = a rest.
    All public-domain melodies, arranged to fit the on-screen key range. */
 
-window.BITPEGGIO_SONGS = {
+window.CHIPPEGGIO_SONGS = {
   twinkle: {
     tempo: 130, octave: 4,
     notes: [
